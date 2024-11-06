@@ -4,15 +4,17 @@ import { Canvas } from '@react-three/fiber';
 import { useMediaQuery } from 'react-responsive';
 import { PerspectiveCamera } from '@react-three/drei';
 
-import Cube from '../components/Cube.jsx';;
+import Cube from '../components/Cube.jsx';
 import ReactLogo from '../components/ReactLogo.jsx';
 import Target from '../components/Target.jsx';
 import CanvasLoader from '../components/CanvasLoader.jsx';
 import { calculateSizes } from '../constants/index.js';
 import { HackerRoom } from '../components/HackerRoom.jsx';
+import JavaLogo from "../components/JavaLogo.jsx";
+import Csharp from "../components/Csharp.jsx";
+import ThreeJsLogo from "../components/ThreeJsLogo.jsx";
 
 const Hero = () => {
-    // Use media queries to determine screen size
     const isSmall = useMediaQuery({ maxWidth: 440 });
     const isMobile = useMediaQuery({ maxWidth: 768 });
     const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
@@ -31,14 +33,15 @@ const Hero = () => {
             <div className="w-full h-full absolute inset-0">
                 <Canvas className="w-full h-full">
                     <Suspense fallback={<CanvasLoader />}>
-                        {/* To hide controller */}
                         <Leva hidden />
                         <PerspectiveCamera makeDefault position={[0, 0, 30]} />
-                            <HackerRoom scale={sizes.deskScale} position={sizes.deskPosition} rotation={[0.1, -Math.PI, 0]} />
+                        <HackerRoom scale={sizes.deskScale} position={sizes.deskPosition} rotation={[0.1, -Math.PI, 0]} />
                         <group>
-                            <Target position={sizes.targetPosition} />
+                            <ThreeJsLogo position={sizes.threeJsPositionPosition}/>
+                            <Csharp position={sizes.CsharpPosition} />
                             <ReactLogo position={sizes.reactLogoPosition} />
                             <Cube position={sizes.cubePosition} />
+                            <JavaLogo position={sizes.javaPosition}/>
                         </group>
 
                         <ambientLight intensity={1} />
