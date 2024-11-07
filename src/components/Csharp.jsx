@@ -1,11 +1,18 @@
 import { Float, useGLTF } from '@react-three/drei';
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
+import {useMediaQuery} from "react-responsive";
+import {calculateSizes} from "../constants/index.js";
 
 const Csharp = (props) => {
     const { nodes, materials } = useGLTF('/models/cSharp.glb');
     const CsharpRef = useRef();
     const [hover, setHover] = useState(false);
+
+    const isSmall = useMediaQuery({ maxWidth: 440 });
+    const isMobile = useMediaQuery({ maxWidth: 768 });
+    const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
+
 
     useEffect(() => {
         const rotationTimeline = gsap.timeline({
@@ -30,7 +37,7 @@ const Csharp = (props) => {
     return (
         <Float floatIntensity={1}>
             <group rotation={[0, Math.PI / 5, 0]} {...props} dispose={null}>
-                <group scale={0.0005}>
+                <group scale={isSmall ? 0.00025 : isMobile ? 0.0002 : isTablet ? 0.00025 : 0.0006}>
                     <mesh
                         castShadow
                         receiveShadow

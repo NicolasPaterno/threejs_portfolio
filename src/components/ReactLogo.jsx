@@ -4,13 +4,15 @@ import { Trail, Float, Line, Sphere, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import PropTypes from 'prop-types';
 import {useFrame} from "@react-three/fiber";
+import {useMediaQuery} from "react-responsive";
+
 
 export default function ReactLogo(props) {
     return (
         <group {...props}>
             <color attach="background" args={['black']} />
             <Float speed={4} rotationIntensity={1} floatIntensity={3}>
-                <Atom />
+                <Atom/>
             </Float>
             <Stars saturation={1} count={700} speed={3} />
             <EffectComposer>
@@ -22,8 +24,13 @@ export default function ReactLogo(props) {
 
 function Atom(props) {
     const points = useMemo(() => new THREE.EllipseCurve(0, 0, 3, 1.1, 0, 2 * Math.PI, false, 0).getPoints(100), [   ]);
+
+    const isSmall = useMediaQuery({ maxWidth: 440 });
+    const isMobile = useMediaQuery({ maxWidth: 768 });
+    const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
+
     return (
-        <group scale={0.45} {...props}>
+        <group scale={isSmall ? 0.3 : isMobile ? 0.3 : isTablet ? 0.3 : 0.4} {...props}>
             <Line worldUnits points={points} color="turquoise" lineWidth={0.1} />
             <Line worldUnits points={points} color="turquoise" lineWidth={0.1} rotation={[0, 0, 1]} />
             <Line worldUnits points={points} color="turquoise" lineWidth={0.1} rotation={[0, 0, -1]} />

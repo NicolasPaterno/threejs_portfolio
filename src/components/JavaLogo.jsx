@@ -4,12 +4,17 @@ import { useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import {useGSAP} from "@gsap/react";
 import gsap from "gsap";
+import {useMediaQuery} from "react-responsive";
 
 const JavaLogo = (props) => {
     const JavaLogoRef = useRef();
     const group = useRef()
     const { nodes, materials, animations } = useGLTF('/models/javaicone.glb')
     const { actions } = useAnimations(animations, group)
+
+    const isSmall = useMediaQuery({ maxWidth: 440 });
+    const isMobile = useMediaQuery({ maxWidth: 768 });
+    const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
 
     useGSAP(() => {
         gsap.to(JavaLogoRef.current.position, {
@@ -23,7 +28,7 @@ const JavaLogo = (props) => {
     return (
         <group ref={group} {...props} dispose={null}>
             <group ref={JavaLogoRef}  name="Sketchfab_Scene" >
-                <group position={[2.5,-6,0]} name="Sketchfab_model" rotation={[-Math.PI / 2.3, 0.1, 0.4]}>
+                <group scale={isSmall ? 0.5 : isMobile ? 0.6 : isTablet ? 0.7 : 0.8} position={[2.5,-6,0]} name="Sketchfab_model" rotation={[-Math.PI / 2.3, 0.1, 0.4]}>
                     <group name="Root">
                         <group name="Cube">
                             <mesh

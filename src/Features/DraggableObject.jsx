@@ -1,51 +1,86 @@
-// Features/DraggableObject.jsx
-import React, { useRef, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef, useEffect } from 'react';
+import { useThree, useFrame } from '@react-three/fiber';
+import { Vector3 } from 'three';
+import * as THREE from 'three';
 
-const DraggableObject = ({ children, initialPosition }) => {
-    const ref = useRef();
-    const [position, setPosition] = useState(initialPosition);
-    const [isDragging, setIsDragging] = useState(false);
+const DragControl = ({ children }) => {
+    const { camera, gl } = useThree();
+    const objectRef = useRef(null);  // Atualizando inicialização
+    const isDragging = useRef(false);
+    const initialPosition = useRef(new Vector3());
+    const mouse = new Vector3();
+    const targetPosition = new Vector3();
 
-    const handlePointerDown = (event) => {
-        event.stopPropagation(); // Prevent event from bubbling up
-        setIsDragging(true);
-        // Set the initial position when dragging starts
-        setPosition([ref.current.position.x, ref.current.position.y, ref.current.position.z]);
-    };
+    useEffect(() => {
+        const handleMouseDown = (event) => {
+            event.preventDefault();
+            const { clientX, clientY } = event;
+            const x = (clientX / window.innerWidth) * 2 - 1;
+            const y = -(clientY / window.innerHeight) * 2 + 1;
+            mouse.set(x, y, 0);
 
-    const handlePointerUp = () => {
-        setIsDragging(false);
-        // Reset to initial position when released
-        ref.current.position.set(initialPosition[0], initialPosition[1], initialPosition[2]);
-    };
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+
+            // Certifique-se de que objectRef.current existe
+            if (objectRef.current) {
+                const intersects = raycaster.intersectObject(objectRef.current, true);
+                console.log('Intersects:', intersects); // Depuração
+
+                if (intersects.length > 0) {
+                    isDragging.current = true;
+                    initialPosition.current.copy(objectRef.current.position);
+                }
+            } else {
+                console.warn('objectRef.current is not defined');
+            }
+        };
+
+        const handleMouseUp = () => {
+            isDragging.current = false;
+        };
+
+        const handleMouseMove = (event) => {
+            if (!isDragging.current) return;
+
+            const { clientX, clientY } = event;
+            const x = (clientX / window.innerWidth) * 2 - 1;
+            const y = -(clientY / window.innerHeight) * 2 + 1;
+            mouse.set(x, y, 0);
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            const planeIntersect = new THREE.Plane(new Vector3(0, 0, 1), 0);
+            const intersectPoint = raycaster.ray.intersectPlane(planeIntersect, new Vector3());
+            if (intersectPoint) {
+                targetPosition.copy(intersectPoint);
+            }
+        };
+
+        gl.domElement.addEventListener('mousedown', handleMouseDown);
+        gl.domElement.addEventListener('mouseup', handleMouseUp);
+        gl.domElement.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            gl.domElement.removeEventListener('mousedown', handleMouseDown);
+            gl.domElement.removeEventListener('mouseup', handleMouseUp);
+            gl.domElement.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, [camera, gl]);
 
     useFrame(() => {
-        if (isDragging) {
-            // Update position based on mouse movement
-            const { x, y, z } = ref.current.position;
-            ref.current.position.set(x, y, z); // Maintain the current z position
+        if (!objectRef.current) return;
+
+        if (isDragging.current) {
+            // Move object smoothly towards target position while dragging
+            objectRef.current.position.lerp(targetPosition, 0.2);
+        } else {
+            // Return to initial position when dragging stops
+            objectRef.current.position.lerp(initialPosition.current, 0.1);
         }
     });
 
-    return (
-        <mesh
-            ref={ref}
-            position={position}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-            onPointerOut={handlePointerUp} // Reset on pointer out as well
-            onPointerMove={(event) => {
-                if (isDragging) {
-                    // Update position based on the mouse point in the world
-                    const newPosition = event.point.clone(); // Clone the point to avoid mutation
-                    ref.current.position.set(newPosition.x, newPosition.y, newPosition.z);
-                }
-            }}
-        >
-            {children}
-        </mesh>
-    );
+    return <group ref={objectRef}>{children}</group>;
 };
 
-export default DraggableObject;
+export default DragControl;
