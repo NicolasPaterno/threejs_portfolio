@@ -36,9 +36,14 @@ const Projects = () => {
             <div className="grid lg:grid-cols-2 grid-cols-1 mt-12 gap-5 w-full">
                 <div className="flex flex-col gap-5 relative sm:p-10 py-10 px-5 shadow-2xl shadow-black-200">
                     <div className="absolute top-0 right-0">
+                        {/* the div wrapped in the h1 is temporary*/}
+                    <div className="absolute top-0 left-0 right-0 p-5 bg-black-800 bg-opacity-80 text-white rounded-t-lg z-10">
+                        <h1 className="text-white text-2xl font-semibold animatedText">This current section is in development and the works are just demonstrations</h1>
+                    </div>
                         <img src={currentProject.spotlight} alt="spotlight"
                              className="w-full h-96 object-cover rounded-xl"/>
                     </div>
+
 
                     <div className="p-3 backdrop-filter backdrop-blur-3xl w-fit rounded-lg"
                          style={currentProject.logoStyle}>
